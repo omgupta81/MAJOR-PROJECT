@@ -66,9 +66,9 @@ const sessionOptions = {
   },
 };
 
-// app.get("/", (req, res) => {
-//   res.send("Hi, I am root");
-// });
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
 app.use(session(sessionOptions)); // Initialize session middleware with options
 app.use(flash()); // Initialize flash middleware
