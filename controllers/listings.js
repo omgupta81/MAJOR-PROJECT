@@ -1,15 +1,39 @@
 const Listing = require("../models/listing");
 
-module.exports.index = async (req, res) => {
+// module.exports.index = async (req, res) => {
+//   const allListings = await Listing.find({});
+
+//   // Ensure each listing has a price
+//   allListings.forEach((listing) => {
+//     if (!listing.price) listing.price = 0; // Default price if missing
+//   });
+
+//   res.render("listings/index.ejs", { allListings });
+// };
+
+module.exports.index =  async (req, res) => {
+  const { q } = req.query;
+
+  if (q) {
+    const regex = new RegExp(escapeRegex(q), "i");
+    const listings = await Listing.find({
+      $or: [{ title: regex }, { country: regex }],
+    });
+
+    if (listings.length === 0) {
+      req.flash("error", "No listings found matching your search.");
+      return res.redirect("/listings");
+    }
+
+    return res.render("listings/index", { allListings: listings });
+  }
+
   const allListings = await Listing.find({});
-
-  // Ensure each listing has a price
-  allListings.forEach((listing) => {
-    if (!listing.price) listing.price = 0; // Default price if missing
-  });
-
-  res.render("listings/index.ejs", { allListings });
+  res.render("listings/index", { allListings });
 };
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
 
 module.exports.renderNewForm = (req, res) => {
   res.render("listings/new.ejs");
